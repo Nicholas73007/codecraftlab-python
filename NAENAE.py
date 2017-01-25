@@ -5,9 +5,12 @@ from pygame.locals import *
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self,).__init__()
-        self.surf = pygame.Surface((75, 75))
-        self.surf.fill((255, 255, 255))
-        self.rect = self.surf.get_rect()
+##        self.surf = pygame.Surface((75, 75))
+##        self.surf.fill((255, 255, 255))
+##        self.rect = self.surf.get_rect()
+        self.image = pygame.image.load('bottle.png').convert()
+        self.image.set_colorkey((255, 255, 255),RLEACCEL)
+        self.rect = self.image.get_rect()
 
 
 
@@ -32,20 +35,21 @@ class Player(pygame.sprite.Sprite):
 
 
 class Opponent(pygame.sprite.Sprite):
-    #def __init__(self):
-        #super(Opponent, self).__init__()
-        #self.surf = pygame.Surface((20, 10))
-        #self.surf.fill((255, 255, 255))
-        #self.rect = self.surf.get_rect(center=(820, random.randint(0, 600)))
-        #self.speed = random.randint(0, 2)
-    self.image = pygame.image.load('bottle').convert()
-    self.image.set_colorkey((0, 0, 255)),RLEACCEL)
-    self.rect = self.image.get_rect()
+    def __init__(self):
+        super(Opponent, self).__init__()
+        self.image = pygame.image.load('Screaming kid.jpg').convert()
+        self.image.set_colorkey((255,255,255), RLEACCEL)
+        self.rect = self.image.get_rect(
+            center = (random.randint(820,900), random.randint(0,600))
+        )
+        self.speed = random.randint(0,1)
+
     def update(self):
         self.rect.move_ip(-self.speed, 0)
         if self.rect.right < 0:
             self.kill()
 pygame.init()
+my_font=pygame.font.SysFont("helvetica",16)
 #create screen
 screen = pygame.display.set_mode((800, 600))
 player = Player()
@@ -53,7 +57,7 @@ player = Player()
 
 
 background = pygame.Surface(screen.get_size())
-background.fill((0, 0, 0))
+background.fill((0, 122, 224))
 
 #create main loop
 
@@ -64,18 +68,21 @@ all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 ADDOPPONENT = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDOPPONENT, 250)
-while running:
-    for event in pygame.event.get():
-        #if key is pressed
-        if event.type == KEYDOWN:
-            #and that key happens to be the escape key
-            if event.key == K_ESCAPE:
-                running = False
-        elif event.type == QUIT:
-            running = False
-            
+running = True
 
-        elif (event.type == ADDOPPONENT):
+clock=pygame.time.Clock()
+fps=1000
+score = 0
+while running:
+    clock.tick(fps)
+    scoretext=my_font.render(str(pygame.time.get_ticks()/000),1,(0,0,0))
+    for event in pygame.event.get():
+      if event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                running=False
+      elif event.type==QUIT:
+        running=False            
+      elif (event.type == ADDOPPONENT):
             new_opponent = Opponent()
             opponents.add(new_opponent)
             all_sprites.add(new_opponent)
@@ -88,7 +95,7 @@ while running:
     opponents.update()
 
     for entity in all_sprites:
-        screen.blit(entity.surf, entity.rect)
+        screen.blit(entity.image, entity.rect)
 
     if pygame.sprite.spritecollideany(player, opponents):
         player.kill()
@@ -96,7 +103,6 @@ while running:
     pygame.display.flip()
 
 pygame.init()
-
 pygame.quit()
 
 
